@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>cells</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #000;
+        }
+    </style>
+</head>
+
+<body>
+    <script>
+        let points = [];
+        let velocities = [];
+        let cellAges = [];
+        let width;
+        let height;
+        let startColor, midColor, endColor;
+        let padding = 200;
+
+        function setup() {
+            createCanvas(windowWidth, windowHeight);
+            width = windowWidth;
+            height = windowHeight;
+
+            // startColor = color('#A1ECFF');
+            // midColor = color('#D8BBFF')
+            // endColor = color('#FFDBFA');
+
+            // startColor = color('#d1efff');
+            // midColor = color('#eee1ff');
+            // endColor = color('#fff2fc');
+
+            startColor = color('#dec4ff');
+            midColor = color('#d1efff');
+            endColor = color('#fff2fc');
+
+            initializeGrid(50);
+        }
+
+        function draw() {
+            background(255);
+            fill(0);
+            stroke(0);
+
+            for (let i = 0; i < points.length; i++) {
+                let p1 = points[i];
+                let velocity = velocities[i];
+
+                // Increment cell age
+                cellAges[i]++;
+
+                // Update position based on velocity
+                p1.add(velocity);
+
+                if (p1.x < 0 - padding || p1.x > width + padding || p1.y < 0 - padding || p1.y > height + padding) {
+                    points.splice(i, 1);
+                    velocities.splice(i, 1);
+                    cellAges.splice(i, 1);
+                    i--;
+                    continue;
+                }
+
+                // Apply drag force
+                velocity.mult(0.95); // Simulate drag by reducing velocity
+
+                // Calculate repulsive forces from neighboring points
+                for (let j = 0; j < points.length; j++) {
+                    if (i !== j) {
+                        let p2 = points[j];
+                        let direction = p5.Vector.sub(p1, p2);
+                        let distance = direction.mag();
+
+                        // If too close, apply a repulsive force
+                        if (distance < 200) { // Adjust this threshold as needed
+                            direction.normalize();
+                            velocity.add(direction.mult(0.75)); // Adjust strength of repulsion
+                        }
+                    }
+                }
+
+                // Random chance for growth/splitting
+                if (random() < 0.0005) {
+                    // if (random() < 0.00075) {
+                    growOrSplit(p1);
+                }
+            }
+
+            if (points.length > 2) {
+                const delaunay = d3.Delaunay.from(points.map(p => [p.x, p.y]));
+                const voronoi = delaunay.voronoi([-padding, -padding, width + padding, height + padding]);
+
+                for (let i = 0; i < points.length; i++) {
+                    const cell = voronoi.cellPolygon(i);
+                    if (cell) {
+                        const shrunkCell = shrinkPolygon(cell, 15);
+                        const age = cellAges[i];
+                        const t = constrain(map(age, 0, 150, 0, 1), 0, 1);
+                        // const cellColor = lerpColor(t < 0.5 ? startColor : midColor, t < 0.5 ? midColor : endColor, t < 0.5 ? t * 2 : (t - 0.5) * 2);
+                        const cellColor = lerpColor(startColor, endColor, t);
+                        fill(cellColor);
+                        drawRoundedPolygon(shrunkCell, 50);
+                    }
+                }
+            }
+        }
+
+        function initializeGrid(numPoints) {
+            let cols = Math.floor(Math.sqrt(numPoints));
+            let rows = Math.ceil(numPoints / cols);
+
+            points = [];
+            velocities = [];
+            cellAges = [];
+
+            let cellWidth = width / cols;
+            let cellHeight = height / rows;
+
+            for (let i = 0; i < rows; i++) {
+                for (let j = 0; j < cols; j++) {
+                    if (points.length < numPoints) {
+                        let x = j * cellWidth + cellWidth / 2;
+                        let y = i * cellHeight + cellHeight / 2;
+                        points.push(createVector(x + random(-50, 50), y + random(-50, 50)));
+                        velocities.push(createVector(0, 0));
+                        cellAges.push(0);
+                    }
+                }
+            }
+        }
+
+        function growOrSplit(point) {
+            point.x += random(-5, 5);
+            point.y += random(-5, 5);
+
+            let newPointCount = floor(random(1, 3));
+            for (let i = 0; i < newPointCount; i++) {
+                let newX = point.x + random(-20, 20);
+                let newY = point.y + random(-20, 20);
+                points.push(createVector(newX, newY));
+                // velocities.push(createVector(random(-2, 2), random(-2, 2))); // Initialize new velocities
+                velocities.push(createVector(0, 0)); // Initialize new velocities
+                cellAges.push(0);
+            }
+        }
+
+        function shrinkPolygon(points, offset) {
+            const centroid = createVector(0, 0);
+
+            for (let p of points) {
+                centroid.x += p[0];
+                centroid.y += p[1];
+            }
+            centroid.x /= points.length;
+            centroid.y /= points.length;
+
+            return points.map(p => {
+                const vector = createVector(p[0], p[1]);
+                const direction = p5.Vector.sub(vector, centroid).normalize();
+                return [p[0] - direction.x * offset, p[1] - direction.y * offset];
+            });
+        }
+
+        function mousePressed() {
+            // points.push(createVector(mouseX, mouseY));
+            // velocities.push(createVector(0, 0)); // Initialize new velocity
+            // cellAges.push(0);
+        }
+
+        function drawRoundedPolygon(originalPoints, r) {
+            beginShape();
+
+            let pointsArray = originalPoints.map(point => createVector(point[0], point[1]));
+
+            for (let i = 0; i < pointsArray.length; i++) {
+                const a = pointsArray[i];
+                const b = pointsArray[(i + 1) % pointsArray.length];
+                const c = pointsArray[(i + 2) % pointsArray.length];
+
+                const ba = a.copy().sub(b).normalize();
+                const bc = c.copy().sub(b).normalize();
+
+                const normal = ba.copy().add(bc).normalize();
+
+                const theta = ba.angleBetween(bc);
+
+                const maxR = min(a.dist(b), c.dist(b)) / 2 * abs(sin(theta / 2));
+
+                const cornerR = min(r, maxR);
+
+                const distance = abs(cornerR / sin(theta / 2));
+
+                const c1 = b.copy().add(ba.copy().mult(distance));
+                const c2 = b.copy().add(bc.copy().mult(distance));
+
+                const bezierDist = 0.5523;
+
+                const p1 = c1.copy().sub(ba.copy().mult(2 * cornerR * bezierDist));
+                const p2 = c2.copy().sub(bc.copy().mult(2 * cornerR * bezierDist));
+
+                vertex(c1.x, c1.y);
+                bezierVertex(p1.x, p1.y, p2.x, p2.y, c2.x, c2.y);
+            }
+
+            endShape(CLOSE);
+        }
+
+        function windowResized() {
+            resizeCanvas(windowWidth, windowHeight);
+            width = windowWidth;
+            height = windowHeight;
+
+            // initializeGrid(width / 250 * height / 250);
+        }
+    </script>
+</body>
+
+</html>

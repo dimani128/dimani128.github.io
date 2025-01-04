@@ -1,0 +1,35 @@
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.wrapper {
+    flex: 1;
+}
+
+#cell-bg {
+    /* Fixes the position of the iframe */
+    position: fixed;
+    /* Aligns to the top of the viewport */
+    top: 0;
+    /* Aligns to the left of the viewport */
+    left: 0;
+    /* Sets width to 100% of the viewport width */
+    width: 100vw;
+    /* Sets height to 100% of the viewport height */
+    height: 100vh;
+    /* Removes default border */
+    border: none;
+    /* Moves behind all other objects */
+    z-index: -999;
+}
+
+.main {
+    width: 100%;
+    min-height: 100%;
+}
+
+.footer {
+    bottom: 0;
+}
