@@ -27,7 +27,11 @@ function loadPage(page) {
 
             console.log("Finished loading page:", page)
         })
-        .catch(error => console.error('Error loading page:', error));
+        .catch(error => {
+            console.error('Error loading page:', error);
+            document.getElementById('content').innerHTML = "An error occured:<br>" + error;
+            document.getElementById('title').innerHTML = "error";
+        });
 }
 
 async function fetchNumber() {
@@ -59,7 +63,7 @@ document.addEventListener('DOMContentLoaded', () => loadPage('home'));
 
 // Example of how to trigger loading a new page (e.g., from a link)
 document.querySelectorAll('a.page-link').forEach(link => {
-    link.addEventListener('click', function(event) {
+    link.addEventListener('click', function (event) {
         event.preventDefault(); // Prevent default anchor behavior
         const page = this.getAttribute('href'); // Get the href attribute value
         loadPage(page); // Load the new page
