@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Helpful Tools</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body class="bg-light">
+    <div class="container-fluid mt-4">
+        <div class="row">
+            <div class="col-auto">
+                <div class="p-4 bg-white rounded shadow-sm">
+                    <h2 class="text-center mb-4">Configuration</h2>
+                    <div class="mb-3">
+                        <label for="bitSize" class="form-label">Bit Size:</label>
+                        <input type="number" class="form-control" id="bitSize" value="16" min="1" max="64"
+                            oninput="updateBitSize()" required>
+                        <div class="invalid-feedback" id="bitSize-error"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Number System Converter Section -->
+            <div class="col-auto">
+                <div class="p-4 bg-white rounded shadow-sm">
+                    <h2 class="text-center mb-4">16-bit Number System Converter</h2>
+                    <div class="mb-3">
+                        <label for="binary" class="form-label">Binary:</label>
+                        <input type="text" class="form-control" id="binary" placeholder="Enter 16-bit binary"
+                            oninput="convert('binary')" required>
+                        <div class="invalid-feedback" id="binary-error"></div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="decimal" class="form-label">Decimal:</label>
+                        <input type="text" class="form-control" id="decimal"
+                            placeholder="Enter decimal (-32768 to 65535)" oninput="convert('decimal')" required>
+                        <div class="invalid-feedback" id="decimal-error"></div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="hexadecimal" class="form-label">Hexadecimal:</label>
+                        <input type="text" class="form-control" id="hexadecimal" placeholder="Enter 4-digit hexadecimal"
+                            oninput="convert('hexadecimal')" required>
+                        <div class="invalid-feedback" id="hexadecimal-error"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 16-bit Operations Section -->
+            <div class="col-auto">
+                <div class="p-4 bg-white rounded shadow-sm">
+                    <h2 class="text-center mb-4">16-bit Operations (from <a href="https://nandgame.com/">Nandgame</a>)</h2>
+                    <div class="mb-3">
+                        <label for="num1" class="form-label">Number 1:</label>
+                        <input type="number" class="form-control" id="num1"
+                            placeholder="Enter first number (-32768 to 65535)" value="0" oninput="performOperations()"
+                            required>
+                        <div class="invalid-feedback" id="num1-error"></div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="num2" class="form-label">Number 2:</label>
+                        <input type="number" class="form-control" id="num2"
+                            placeholder="Enter second number (-32768 to 65535)" value="0" oninput="performOperations()"
+                            required>
+                        <div class="invalid-feedback" id="num2-error"></div>
+                    </div>
+
+                    <!-- Binary Representation -->
+                    <div id="binaryRepresentation" class="mb-3"></div>
+
+                    <!-- Operations Table -->Z
+                    <div class="table-responsive">
+                        <table id="operationsTable" class="table table-striped table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>u</th>
+                                    <th>op0</th>
+                                    <th>op1</th>
+                                    <th>Operation</th>
+                                    <th>Result (Decimal)</th>
+                                    <th>Result (Binary)</th>
+                                    <th>Result (Hex)</th>
+                                </tr>
+                            </thead>
+                            <!-- Table content will be dynamically populated by JavaScript -->
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Frequency Calculator Section -->
+            <div class="col-auto">
+                <div class="p-4 bg-white rounded shadow-sm">
+                    <h2 class="text-center mb-4">Frequency Calculator</h2>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" role="switch" id="high-precision"
+                            oninput="calculateFrequency('high-precision')">
+                        <label class="form-check-label" for="high-precision">Disable Rounding</label>
+                        <div class="invalid-feedback" id="high-precision-error"></div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="frequency" class="form-label">Frequency:</label>
+                        <input type="text" class="form-control" id="frequency"
+                            placeholder="Enter frequency (e.g., 1 kHz)" oninput="calculateFrequency('frequency')"
+                            required>
+                        <div class="invalid-feedback" id="frequency-error"></div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="totalCycleTime" class="form-label">Total Cycle Time:</label>
+                        <input type="text" class="form-control" id="totalCycleTime"
+                            placeholder="Enter total cycle time (e.g., 1 ms)"
+                            oninput="calculateFrequency('totalCycleTime')" required>
+                        <div class="invalid-feedback" id="totalCycleTime-error"></div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="halfCycleTime" class="form-label">Half Cycle Time:</label>
+                        <input type="text" class="form-control" id="halfCycleTime"
+                            placeholder="Enter half cycle time (e.g., 500 µs)"
+                            oninput="calculateFrequency('halfCycleTime')" required>
+                        <div class="invalid-feedback" id="halfCycleTime-error"></div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="adjustedCycleTime" class="form-label">Adjusted Cycle Time:</label>
+                        <input type="text" class="form-control" id="adjustedCycleTime"
+                            placeholder="Enter adjusted cycle time (e.g., 1.04 ms)"
+                            oninput="calculateFrequency('adjustedCycleTime')" required>
+                        <div class="invalid-feedback" id="adjustedCycleTime-error"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Template Section -->
+            <div class="col-auto">
+                <div class="p-4 bg-white rounded shadow-sm">
+                    <h2 class="text-center mb-4">Template</h2>
+                    <p>Template content goes here.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="/script.js"></script> <!-- External JS file -->
+</body>
+
+</html>
