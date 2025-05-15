@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Causes of WWII Term Linking</title>
+    <script type="text/javascript" src="https://unpkg.com/vis-network@9.1.2/dist/vis-network.min.js"></script>
+    <link href="https://unpkg.com/vis-network@9.1.2/dist/vis-network.min.css" rel="stylesheet" type="text/css" />
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        #network {
+            width: 100vw;
+            height: 90vh;
+            border: 1px solid #ccc;
+            background: #fafbfc;
+        }
+    </style>
+</head>
+
+<body>
+    <h2>Causes of WWII Term Linking</h2>
+    <div id="network"></div>
+    <script>
+        // Nodes: id, label, size
+        const nodes = [
+            { id: 'versailles',  label: 'Treaty of Versailles',         value: 50, group: 1 },
+            { id: 'depression',  label: 'Great Depression',             value: 40, group: 3 },
+            { id: 'appeasement', label: 'Appeasement/Munich Agreement', value: 40, group: 7 },
+            { id: 'fascism',     label: 'Rise of Fascism',              value: 35, group: 4 },
+            { id: 'league',      label: 'League of Nations',            value: 30, group: 2 },
+            { id: 'hitler',      label: 'Adolf Hitler/Nazi Party',      value: 30, group: 4 },
+            { id: 'communism',   label: 'Russian Revolution/Communism', value: 30, group: 5 },
+            { id: 'mussolini',   label: 'Benito Mussolini',             value: 25, group: 4 },
+            { id: 'spain',       label: 'Spanish Civil War',            value: 20, group: 6 },
+        ];
+
+        // Edges: from, to, strength
+        let edges = [
+            { from: 'versailles', to: 'league', value: 2 },
+            { from: 'versailles', to: 'depression', value: 3 },
+            { from: 'versailles', to: 'fascism', value: 4 },
+
+            { from: 'depression', to: 'fascism', value: 3 },
+            { from: 'depression', to: 'hitler', value: 2 },
+            { from: 'depression', to: 'mussolini', value: 2 },
+
+            { from: 'fascism', to: 'hitler', value: 4 },
+            { from: 'fascism', to: 'mussolini', value: 3 },
+            { from: 'fascism', to: 'spain', value: 2 },
+
+            { from: 'hitler', to: 'appeasement', value: 3 },
+
+            { from: 'mussolini', to: 'spain', value: 2 },
+
+            { from: 'communism', to: 'spain', value: 2 },
+            { from: 'communism', to: 'fascism', value: 1 },
+
+            { from: 'league', to: 'appeasement', value: 2 }
+        ];
+
+        // Create a network
+        const container = document.getElementById('network');
+        const data = {
+            nodes: new vis.DataSet(nodes.map(n => ({
+                ...n,
+                font: { size: 18 },
+                physics: true,
+                scaling: { min: 15, max: 55 }
+            }))),
+            edges: new vis.DataSet(edges.map(e => ({
+                ...e,
+                color: { color: '#888', highlight: '#222' },
+                smooth: { type: 'dynamic' },
+                length: (e.length || 100) * 3
+            })))
+        };
+
+        const options = {
+            nodes: {
+                shape: 'dot',
+                scaling: { min: 10, max: 50 },
+                shadow: true
+            },
+            edges: {
+                arrows: { to: false },
+                smooth: { type: 'dynamic' },
+                shadow: false
+            },
+            physics: {
+                enabled: true,
+                barnesHut: {
+                    gravitationalConstant: -3000,
+                    centralGravity: 0.3,
+                    springLength: 120,
+                    springConstant: 0.05,
+                    damping: 0.09
+                },
+                // stabilization: { iterations: 150 }
+            },
+            interaction: {
+                dragNodes: true,
+                dragView: true,
+                zoomView: true,
+                // hover: true,
+                // selectable: false,
+                tooltipDelay: 100
+            }
+        };
+
+        const network = new vis.Network(container, data, options);
+
+        // Optional: Show node label on hover
+        network.on("hoverNode", function (params) {
+            network.body.container.style.cursor = 'pointer';
+        });
+        network.on("blurNode", function (params) {
+            network.body.container.style.cursor = 'default';
+        });
+    </script>
+</body>
+
+</html>
