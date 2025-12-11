@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>b64 csv list differ</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="min-h-screen bg-gray-100 p-6">
+  <div class="max-w-4xl mx-auto bg-white p-6 rounded-lg shadow-md">
+    <h1 class="text-2xl font-semibold mb-4 text-gray-800">b64 csv list differ</h1>
+
+    <div class="grid grid-cols-2 gap-4 mb-6">
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">list 1</label>
+        <textarea id="inputA" rows="5" class="w-full p-2 border border-gray-300 rounded focus:ring focus:ring-blue-200"></textarea>
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">list 2</label>
+        <textarea id="inputB" rows="5" class="w-full p-2 border border-gray-300 rounded focus:ring focus:ring-blue-200"></textarea>
+      </div>
+    </div>
+
+    <h2 class="text-xl font-semibold mb-3 text-gray-800">Differences</h2>
+    <div id="output" class="overflow-x-auto">
+      <table class="min-w-full text-sm text-left border border-gray-300 divide-y divide-gray-300">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-3 py-2 font-medium text-gray-700">Index</th>
+            <th class="px-3 py-2 font-medium text-gray-700">Value A</th>
+            <th class="px-3 py-2 font-medium text-gray-700"></th>
+            <th class="px-3 py-2 font-medium text-gray-700">Value B</th>
+          </tr>
+        </thead>
+        <tbody id="diffBody" class="divide-y divide-gray-200"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    const inputA = document.getElementById("inputA");
+    const inputB = document.getElementById("inputB");
+    const diffBody = document.getElementById("diffBody");
+
+    function decodeList(str) {
+      try {
+        const decoded = atob(str.trim());
+        return decoded.split(",").map(s => s.trim());
+      } catch {
+        return [];
+      }
+    }
+
+    function renderDiff() {
+      const listA = decodeList(inputA.value);
+      const listB = decodeList(inputB.value);
+      const maxLen = Math.max(listA.length, listB.length);
+      diffBody.innerHTML = "";
+
+      for (let i = 0; i < maxLen; i++) {
+        const aVal = listA[i] ?? "";
+        const bVal = listB[i] ?? "";
+        const changed = aVal !== bVal;
+        const row = document.createElement("tr");
+
+        row.innerHTML = `
+          <td class="px-3 py-1 ${changed ? 'bg-yellow-200' : ''}">${i}</td>
+          <td class="px-3 py-1 ${changed ? 'text-red-600 bg-yellow-100' : 'text-gray-700'}">${aVal}</td>
+          <td class="px-3 py-1 ${changed ? 'text-red-600 bg-yellow-100' : 'text-gray-700'} text-center">-></td>
+          <td class="px-3 py-1 ${changed ? 'text-green-600 bg-yellow-100' : 'text-gray-700'}">${bVal}</td>
+        `;
+        diffBody.appendChild(row);
+      }
+    }
+
+    inputA.addEventListener("input", renderDiff);
+    inputB.addEventListener("input", renderDiff);
+  </script>
+</body>
+</html>
